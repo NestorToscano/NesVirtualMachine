@@ -94,6 +94,7 @@ uint16_t swap16(uint16_t x);
 void read_image_file(FILE* file);
 int read_image(const char* image_path);
 
+
 // TRAP routines
 uint16_t trap_getc();       
 void trap_out();     

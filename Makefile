@@ -1,13 +1,13 @@
 all: lc3 # default
 
 lc3: main.o lc3.o # lc3 depends on the object file
-	gcc -O3 main.o lc3.c -o lc3
+	gcc -O3 -Wno-unused-result main.o lc3.c -o lc3
 
 main.o: main.c # object file depends on c, compile only
-	gcc -O3 -c main.c -o main.o 
+	gcc -O3 -Wno-unused-result -c main.c -o main.o 
 
 lc3.o: lc3.c # object file depends on c, compile only
-	gcc -O3 -c lc3.c -o lc3.o 
+	gcc -O3 -Wno-unused-result -c lc3.c -o lc3.o 
 
 
 clean: 
