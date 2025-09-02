@@ -95,6 +95,22 @@ void read_image_file(FILE* file);
 int read_image(const char* image_path);
 
 
+// op codes (readability)
+void op_br(uint16_t instr);
+void op_add(uint16_t instr);
+void op_ld(uint16_t instr);
+void op_st(uint16_t instr);
+void op_jsr(uint16_t instr);
+void op_and(uint16_t instr);
+void op_ldr(uint16_t instr);
+void op_str(uint16_t instr);
+void op_not(uint16_t instr);
+void op_ldi(uint16_t instr);
+void op_sti(uint16_t instr);
+void op_jmp(uint16_t instr);
+void op_lea(uint16_t instr);
+void op_trap(int* running, uint16_t instr);
+
 // TRAP routines
 uint16_t trap_getc();       
 void trap_out();     

@@ -57,6 +57,172 @@ void mem_write(uint16_t address, uint16_t val) {
   memory[address] = val;
 }
 
+void op_add(uint16_t instr) {
+  // Destination Register (DR) : 11-9
+  uint16_t r0 = (instr >> 9) & 0x7;
+  // First operand (SR1) : 8-6
+  uint16_t r1 = (instr >> 6) & 0x7;
+  // Mode (immediate/Register) : 5
+  uint16_t imm_flag = (instr >> 5) & 0x1;
+
+  if (imm_flag) { // immediate : 4-0
+      uint16_t imm5 = sign_extend(instr & 0x1F, 5); // 5b -> 16b
+      reg[r0] = reg[r1] + imm5;
+  }
+  else {
+      uint16_t r2 = instr & 0x7;
+      reg[r0] = reg[r1] + reg[r2];
+  }
+
+  update_flags(r0);
+}
+
+void op_and(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t r1 = (instr >> 6) & 0x7;
+  uint16_t imm_flag = (instr >> 5) & 0x1;
+
+  if (imm_flag) {
+      uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+      reg[r0] = reg[r1] & imm5;
+  }
+  else {
+      uint16_t r2 = instr & 0x7;
+      reg[r0] = reg[r1] & reg[r2];
+  }
+  update_flags(r0);
+}
+
+void op_not(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t r1 = (instr >> 6) & 0x7;
+
+  reg[r0] = ~reg[r1];
+
+  update_flags(r0);
+}
+
+void op_br(uint16_t instr) {
+  uint16_t cond_flags = (instr >> 9) & 0x7; // n z p
+  if ((cond_flags) & (reg[R_COND])) { // checking n z p against cpu cond flags
+      uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+      reg[R_PC] += pc_offset;
+  }
+}
+
+void op_jmp(uint16_t instr) {
+  // R7 (111) contains the RET instructions
+  uint16_t r1 = (instr >> 6) & 0x7;
+
+  reg[R_PC] = reg[r1];
+}
+
+void op_jsr(uint16_t instr) {
+  reg[R_R7]=  reg[R_PC];
+
+  uint16_t cond_flag = (instr >> 11) & 0x1;
+
+  if (!cond_flag) {  // JSRR
+      uint16_t r1 = (instr >> 6) & 0x7;
+      reg[R_PC] = reg[r1];
+  }
+  else { // JSR
+      uint16_t pc_offset  = sign_extend(instr & 0x7FF, 11);
+      reg[R_PC] += pc_offset;
+  }
+}
+
+void op_ld(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+  reg[r0] = mem_read(reg[R_PC] + pc_offset);
+  update_flags(r0);
+}
+
+void op_ldi(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+  reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
+  update_flags(r0);
+}
+
+void op_ldr(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t r1 = (instr >> 6) & 0x7;
+  uint16_t offset = sign_extend(instr & 0x3F, 6);
+  reg[r0] = mem_read(reg[r1] + offset);
+  update_flags(r0);
+}
+
+void op_lea(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+  reg[r0] = reg[R_PC] + pc_offset;
+  update_flags(r0);
+}
+
+void op_st(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+  // writing value in register into memory at address
+  mem_write(reg[R_PC] + pc_offset, reg[r0]);
+}
+
+void op_sti(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+  // writing value in register into memory address held by another adress
+  mem_write(mem_read(reg[R_PC] + pc_offset), reg[r0]);
+}
+
+void op_str(uint16_t instr) {
+  uint16_t r0 = (instr >> 9) & 0x7;
+  uint16_t r1 = (instr >> 6) & 0x7;
+  uint16_t offset = sign_extend(instr & 0x3F, 6);
+  mem_write(reg[r1] + offset, reg[r0]);
+}
+void op_trap(int* running, uint16_t instr) {
+          reg[R_R7] = reg[R_PC];
+          uint16_t trap_vector = instr & 0xFF;
+
+          switch (trap_vector) {
+            case TRAP_GETC:
+              {
+                trap_getc();
+              }
+              break;
+            case TRAP_OUT:
+              {
+                trap_out();
+              }
+              break;
+            case TRAP_PUTS:
+              {
+                uint16_t* c = memory + reg[R_R0]; // creating pointer to memory with offset
+                trap_puts(c);
+              }
+              break;
+            case TRAP_IN:
+              {
+                printf("Enter a character: ");
+                char c = getchar();
+                trap_in(c);
+              }
+              break;
+            case TRAP_PUTSP:
+              {
+                uint16_t* c = memory + reg[R_R0];
+                trap_putsp(c);
+              } 
+              break;
+            case TRAP_HALT:
+              {
+                trap_halt(running);
+              }
+              break;      
+          }
+}
+
 // TRAP routines
 uint16_t trap_getc() {
   reg[R_R0] = (uint16_t)getchar();
