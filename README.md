@@ -38,7 +38,7 @@ gdb ./lc3 $(pwd)/src/images/hello-world.obj
 <ul>
   <li>
     <p>
-      The LC3 processor can be separated into three different parts which must be emulated. These include the registers, memory, and instruction decoding. The registers and memory are the main components of hardware that are emulated, however most of the code focuses on fetching and decoding the instructions from memory, and determining what operations to perform whilst updating any registers, memory, or any condition flags. This simply repeats until the program halts. The LC3 is an educational compute which only has single core/thread of execution, so only one instruction can be fetched from memory at a time.
+      The LC3 processor can be separated into three different parts which must be emulated. These include the registers, memory, and instruction decoding. The registers and memory are the main components of hardware that are emulated, however most of the code focuses on fetching and decoding the instructions from memory, and determining what operations to perform whilst updating any registers, memory, or any condition flags. This simply repeats until the program halts. The main reference point I used for decoding instructions, and what each opcode actually does can be seen in this <a href="lc3.pdf">pdf</a>. The LC3 is an educational compute which only has single core/thread of execution, so only one instruction can be fetched from memory at a time.
     </p>
   </li>
   <li> 
