@@ -1,6 +1,7 @@
 <h1>LC3 Virtual Machine </h1>
 A implementation of the LC-3 (<a href="https://en.wikipedia.org/wiki/Little_Computer_3">Little Computer 3</a>) virtual machine, a low-level computer educational programming language. This is my own C code version based off of a very helpful <a href="https://www.jmeiners.com/lc3-vm/#lc-3-architecture"> article</a>.
-
+<h2>Showcase</h2>
+<img src="images/vm.gif" width="400px">
 <h2> How to Build </h2>
 This project uses a Makefile in order to ensure consistent build and run commands across environments. I also used Docker to simply add an extra layer to the environment just in case any issues with dependencies for C libraries, gcc, or makefiles. In order to run the program make sure you have Docker or DockerDesktop installed on your system of choice with your images in the correct folder and run the command
 
@@ -38,12 +39,12 @@ gdb ./lc3 $(pwd)/src/images/hello-world.obj
 <ul>
   <li>
     <p>
-      The LC3 processor can be separated into three different parts which must be emulated. These include the registers, memory, and instruction decoding. The registers and memory are the main components of hardware that are emulated, however most of the code focuses on fetching and decoding the instructions from memory, and determining what operations to perform whilst updating any registers, memory, or any condition flags. This simply repeats until the program halts. The main reference point I used for decoding instructions, and what each opcode actually does can be seen in this <a href="lc3.pdf">pdf</a>. The LC3 is an educational compute which only has single core/thread of execution, so only one instruction can be fetched from memory at a time.
+      The LC3 processor can be separated into three different parts which must be emulated. These include the registers, memory, and instruction decoding. The registers and memory are the main components of hardware that are emulated, however most of the code focuses on fetching and decoding the instructions from memory, and determining what operations to perform whilst updating any registers, memory, or any condition flags. This simply repeats until the program halts. The main reference point I used for decoding instructions, and what each opcode actually does can be seen in this <a href="images/lc3.pdf">pdf</a>. The LC3 is an educational compute which only has single core/thread of execution, so only one instruction can be fetched from memory at a time.
     </p>
   </li>
   <li> 
     <p> Here is a very useful abstract I used in mapping out the internals of the lc3.</p>
-    <img src="lc3-ref-card.png" alt="LC3 Ref Card" width="400">
+    <img src="images/lc3-ref-card.png" alt="LC3 Ref Card" width="400">
   </li>
     
 </ul>
