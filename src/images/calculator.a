@@ -1,0 +1,28 @@
+.ORIG x3000
+; R0 used for I/O, R1/R2 hold digits, R3 result
+
+START   LEA R0, MSG_PROMPT
+        TRAP x22          ; "Enter two digits: "
+        TRAP x23          ; GETC -> first char
+        ADD R1, R0, #0
+        TRAP x21          ; echo
+        TRAP x23          
+        ADD R2, R0, #0
+        TRAP x21          
+      
+        ADD R1, R1, #-48
+        ADD R2, R2, #-48
+        ADD R3, R1, R2    ; final sum
+
+        LEA R0, MSG_SUM
+        TRAP x22          ; print msg_sum
+        ADD R0, R3, #48   ; convert to ascii
+        TRAP x21          ; print digit
+        LEA R0, MSG_NL
+        TRAP x22          ; print nl
+        BRnzp START
+
+MSG_PROMPT .STRINGZ "Enter two digits: "
+MSG_SUM    .STRINGZ "Sum = "
+MSG_NL     .STRINGZ "\n"
+        .END
